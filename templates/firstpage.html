@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <title>File Upload and Predict</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+         
+            font-family: 'Share Tech', sans-serif;
+    /* font-size: 68px; */
+    color: rgb(160, 156, 156);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    /* text-shadow: 8px 8px 10px #0000008c; */
+    /* background-color: #343a40;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%239C92AC' fill-opacity='0.25' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"), linear-gradient(to right top, #343a40, #2b2c31, #211f22, #151314, #000000); */
+    background: linear-gradient(rgb(248, 248, 248), rgb(167, 161, 162), rgb(167,194 ,215));
+
+
+
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(25, 25, 25, 0.8);
+            border-radius: 10px;
+            height: 400px;
+           backdrop-filter: blur(10px);
+            box-shadow: 0px 0px 0px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            
+            margin-top: 20px;
+            /* opacity: 0.9; */
+        }
+        .doit{
+            font-size: 17px;
+            margin-top: 60px;
+            position: fixed;
+        }
+        .drop-area {
+            margin-top: 100px;
+            border: 2px dashed #007BFF;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .drop-area:hover {
+            background-color: #f0f8ff;
+            /* opacity: 0.2; */
+        }
+        .files-list {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .predict-button {
+            /* background-color: #28a745; */
+            color: #f1ebeb;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .predict-button:hover {
+            background-color: #1e7e34;
+        }
+        .btn-lg{
+            background-color: red;
+            color: #ece6e6;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-left: 550px;
+            cursor: pointer;
+        }
+        .glow-on-hover {
+    width: 220px;
+    height: 50px;
+    border: none;
+    outline: none;
+    color: #fff;
+    background: #111;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.glow-on-hover:before {
+    content: '';
+    background: white;
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 70%;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
+}
+
+.glow-on-hover:active {
+    color: #000
+}
+
+.glow-on-hover:active:after {
+    background: transparent;
+}
+
+.glow-on-hover:hover:before {
+    opacity: 1;
+}
+
+.glow-on-hover:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1 class="doit">File Upload and Predict:</h1>
+        <div class="drop-area" id="dropArea">
+            <p>Drag and drop CSV or XLSX files here</p>
+            <input type="file" id="fileInput" name="file" accept=".csv, .xlsx" multiple style="display: none;">
+        </div>
+        <div class="files-list" id="filesList">
+            <p>Selected files:</p>
+        </div>
+        <button class="predict-button  glow-on-hover" id="predictButton" type="button" disabled>Predict</button>
+
+    </div>
+
+    <script>
+        const dropArea = document.getElementById("dropArea");
+        const fileInput = document.getElementById("fileInput");
+        const filesList = document.getElementById("filesList");
+        const predictButton = document.getElementById("predictButton");
+
+        // Prevent default behavior for drop event
+        dropArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = "#f0f8ff";
+        });
+
+        dropArea.addEventListener("dragleave", () => {
+            dropArea.style.backgroundColor = "";
+        });
+
+        dropArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = "";
+            const files = e.dataTransfer.files;
+
+            if (files.length > 2) {
+                alert("You can only upload up to two files.");
+                return;
+            }
+
+            // Clear the previous list of files
+            filesList.innerHTML = "Selected files:";
+
+            // Display the names of the selected files
+            for (const file of files) {
+                const listItem = document.createElement("p");
+                listItem.textContent = file.name;
+                filesList.appendChild(listItem);
+            }
+
+            // Enable the "Predict" button
+            predictButton.removeAttribute("disabled");
+        });
+
+        // Allow file input when clicking the drop area
+        dropArea.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        // Handle file selection via input
+        fileInput.addEventListener("change", () => {
+            const files = fileInput.files;
+
+            if (files.length > 2) {
+                alert("You can only upload up to two files.");
+                return;
+            }
+
+            // Clear the previous list of files
+            filesList.innerHTML = "Selected files:";
+
+            // Display the names of the selected files
+            for (const file of files) {
+                const listItem = document.createElement("p");
+                listItem.textContent = file.name;
+                filesList.appendChild(listItem);
+            }
+
+            // Enable the "Predict" button
+            predictButton.removeAttribute("disabled");
+        });
+
+        predictButton.addEventListener("click", () => {
+    // Disable the button to prevent multiple clicks
+    predictButton.setAttribute("disabled", "true");
+
+    // Create a FormData object to send the uploaded file to the backend
+    const formData = new FormData();
+    const files = fileInput.files;
+
+    if (files.length > 0) {
+        formData.append("file", files[0]); // Assuming only one file is allowed
+        // Make a POST request to the Flask backend with the uploaded file
+        fetch("/predict", {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            // Create a link element to trigger the file download
+            const a = document.createElement("a");
+            const url = window.URL.createObjectURL(blob);
+            a.href = url;
+            a.download = "prediction_result.xlsx"; // Specify the filename here
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            alert("An error occurred during prediction: " + error.message);
+        });
+    } else {
+        alert("Please select a file to predict.");
+    }
+});
+    </script>
+    <form action="/logout" method="GET">
+            <button class="btn-lg" type="submit">Log Out</button>
+    </form>
+
+
+    
+
+</body>
+</html>
